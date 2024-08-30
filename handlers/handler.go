@@ -21,7 +21,22 @@ func PostArticleHandler(w http.ResponseWriter, req *http.Request) {
 
 // /article/listのハンドラ
 func ArticleListHandler(w http.ResponseWriter, req *http.Request) {
-	io.WriteString(w, "Article List\n")
+	queryMap := req.URL.Query() // URLからクエリパタメータを取得する.
+
+	var page int // ページ番号を格納する変数
+	// goのmapでは、キーが存在しない場合、値がゼロ値になり、okがfalseになる.
+	if p, ok := queryMap["page"]; ok && len(p) > 0 {
+		var err error
+		page, err = strconv.Atoi(p[0])
+		if err != nil {
+			http.Error(w, "Invalid query parameter", http.StatusBadRequest)
+			return
+		}
+	} else {
+		page = 1
+	}
+	retString := fmt.Sprintf("Article List (page %d) \n", page)
+	io.WriteString(w, retString)
 }
 
 // /article/1のハンドラ
